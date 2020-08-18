@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/jinzhu/gorm"
 	"net/http"
-	"socket/lib"
-	"socket/service"
-	"socket/sql"
-	"socket/validate"
+	"socket-go/lib"
+	"socket-go/service"
+	"socket-go/sql"
+	"socket-go/validate"
 )
 
 type Register struct {

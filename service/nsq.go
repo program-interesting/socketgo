@@ -4,7 +4,7 @@ import (
 	"github.com/nsqio/go-nsq"
 	"io/ioutil"
 	"log"
-	"socket/service"
+	"socket-go/service"
 	"time"
 )
 

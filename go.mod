@@ -1,4 +1,4 @@
-module socket
+module socket-go
 
 go 1.13
 
