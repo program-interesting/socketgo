@@ -1,9 +1,10 @@
-module socket-go
+module socket
 
 go 1.13
 
 require (
-	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/jinzhu/gorm v1.9.16 // indirect
-	github.com/nsqio/go-nsq v1.0.8 // indirect
+	github.com/gorilla/websocket v1.4.2
+	github.com/jinzhu/gorm v1.9.16
+	github.com/nsqio/go-nsq v1.0.8
+	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 )

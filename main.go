@@ -2,11 +2,11 @@ package main
 
 import (
 	_ "fmt"
-	"github.com/program-interesting/socket-go/config"
-	"github.com/program-interesting/socket-go/sevice"
-	"github.com/program-interesting/socket-go/sql"
 	"log"
 	"net/http"
+	"socket/config"
+	"socket/sevice"
+	"socket/sql"
 )
 
 func main() {

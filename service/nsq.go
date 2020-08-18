@@ -2,9 +2,9 @@ package service
 
 import (
 	"github.com/nsqio/go-nsq"
-	"github.com/program-interesting/socket-go/service"
 	"io/ioutil"
 	"log"
+	"socket/service"
 	"time"
 )
 

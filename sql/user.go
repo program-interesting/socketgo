@@ -6,8 +6,8 @@ import (
 	"encoding/hex"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/program-interesting/socket-go/lib"
 	"golang.org/x/crypto/scrypt"
+	"socket/lib"
 	"time"
 )
 
