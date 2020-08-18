@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>websocket</title>
+</head>
+<body>
+<script type="text/javascript">
+    let sock = null;
+    let wsUri = "ws://127.0.0.1:1777/ws"; //本地的地址 是可以改变的哦
+
+    window.onload = function() {
+
+        sock = new WebSocket(wsUri);
+        //建立连接后触发
+        sock.onopen = function() {
+            console.log(" 建立连接后触发 connected to " + wsUri);
+        }
+        // 关闭连接时候触发
+        sock.onclose = function(e) {
+            console.log("关闭连接时候触发 connection closed (" + e.code + ")");
+        }
+        // 收到消息后触发
+        sock.onmessage = function(e) {
+            console.log("收到消息后触发 message received: " + e.data);
+        }
+        //发生错误的时候触发
+        sock.onerror=function (e) {
+            console.log("发生错误时候触发"+wsUri)
+        }
+    };
+    //如果sock被关闭掉了 这里 也会报错的啊
+    function send() {
+        let msg = document.getElementById('message').value;
+        sock.send(msg);
+    }
+</script>
+<h1>GoWebSocketDemo</h1>
+<form>
+    <p>
+        Message: <input id="message" type="text" value="Test">
+    </p>
+</form>
+<button onclick="send();">给服务器发送消息</button>
+</body>
+</html>
