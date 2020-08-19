@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"golang.org/x/crypto/scrypt"
-	"socket-go/lib"
+	"socketgo/lib"
 	"time"
 )
 

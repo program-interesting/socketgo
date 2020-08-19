@@ -3,7 +3,7 @@ package sql
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"socket-go/config"
+	"socketgo/config"
 )
 
 var DB *gorm.DB

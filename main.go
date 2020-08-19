@@ -4,9 +4,9 @@ import (
 	_ "fmt"
 	"log"
 	"net/http"
-	"socket-go/config"
-	"socket-go/sevice"
-	"socket-go/sql"
+	"socketgo/config"
+	"socketgo/sevice"
+	"socketgo/sql"
 )
 
 func main() {

@@ -1,1 +1,1 @@
-# socket-go
+# socketgo
