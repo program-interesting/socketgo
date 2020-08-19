@@ -5,13 +5,13 @@ import (
 	"log"
 	"net/http"
 	"socketgo/config"
-	"socketgo/sevice"
+	"socketgo/service"
 	"socketgo/sql"
 )
 
 func main() {
 	// 初始化Nsq生产者
-	errorNo, err := sevice.InitProducer(config.ProducerAddr)
+	errorNo, err := service.InitProducer(config.ProducerAddr)
 	if err != nil {
 		switch errorNo {
 		case 1:
@@ -22,18 +22,18 @@ func main() {
 		}
 	}
 	// 初始化Nsq消费者
-	InitConsumer("Message", "Message-channel", config.ConsumerAddr)
+	service.InitConsumer("Message", "Message-channel", config.ConsumerAddr)
 
 	// 初始化数据库连接
 	sql.InitDb()
 
 	// 初始化WebSocket
-	http.HandleFunc("/", index)                           // 注册首页路由
-	http.HandleFunc("/ws", wsHandler)                     // 注册Ws路由
-	http.HandleFunc("/login", login)                      // 注册登录路由
-	http.HandleFunc("/register", register)                // 注册注册路由
-	http.HandleFunc("/revise/name", reviseName)           // 修改昵称
-	http.HandleFunc("/revise/fontColor", reviseFontColor) // 修改字体颜色
+	http.HandleFunc("/", service.Index)                           // 注册首页路由
+	http.HandleFunc("/ws", service.WsHandler)                     // 注册Ws路由
+	http.HandleFunc("/login", service.Login)                      // 注册登录路由
+	http.HandleFunc("/register", service.Register)                // 注册注册路由
+	http.HandleFunc("/revise/name", service.ReviseName)           // 修改昵称
+	http.HandleFunc("/revise/fontColor", service.ReviseFontColor) // 修改字体颜色
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static")))) // 注册静态资源路由
 	defer sql.DB.Close()

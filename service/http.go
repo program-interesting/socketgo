@@ -1,13 +1,15 @@
 package service
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"net/http"
 	"socketgo/lib"
 	"socketgo/sql"
+	"socketgo/validate"
 )
 
-type Register struct {
+type RegisterData struct {
 	User string `json:"user"` // 注册账号
 	Pass string `json:"pass"` // 注册密码
 	Nick string `json:"nick"` // 用户昵称
@@ -20,20 +22,20 @@ type UserInfo struct {
 }
 
 // 首页界面
-func index(w http.ResponseWriter, r *http.Request) {
+func Index(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "html/index.html")
 }
 
 // 登录界面及登录函数
-func login(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" { // 这里用来处理传递上来的登录信息
 		postUser := r.PostFormValue("user")
 		postPass := r.PostFormValue("pass")
 
 		w.Header().Add("content-type", "application/json;charset=utf-8")
 
-		vali := validate.Validate{}
-		if !vali.Init().SetRule(map[string]string{
+		valid := validate.Validate{}
+		if !valid.Init().SetRule(map[string]string{
 			"pass": "require|length:6,20|alphaNum",
 			"user": "require|length:6,20|alphaNum",
 		}).SetMsg(map[string]string{
@@ -46,8 +48,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 		}).Check(map[string]interface{}{
 			"pass": postPass,
 			"user": postUser,
-		}) {
-			w.Write(lib.MakeReturnJson(501, vali.GetError(), nil))
+		}, false) {
+			w.Write(lib.MakeReturnJson(501, valid.GetError(), nil))
 			return
 		}
 
@@ -77,9 +79,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 // 注册界面及注册函数
-func register(w http.ResponseWriter, r *http.Request) {
+func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" { // 这里用来处理传递上来的注册信息
-		var registerInfo = Register{
+		var registerInfo = RegisterData{
 			User: r.PostFormValue("user"),
 			Pass: r.PostFormValue("pass"),
 			Nick: r.PostFormValue("nick"),
@@ -90,8 +92,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		vali := validate.Validate{}
-		if !vali.Init().SetRule(map[string]string{
+		valid := validate.Validate{}
+		if !valid.Init().SetRule(map[string]string{
 			"nick": "require|chsAlphaNum|length:3,15",
 			"pass": "require|length:6,20|alphaNum",
 			"user": "require|length:6,20|alphaNum",
@@ -109,8 +111,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 			"nick": registerInfo.Nick,
 			"pass": registerInfo.Pass,
 			"user": registerInfo.User,
-		}) {
-			w.Write(lib.MakeReturnJson(501, vali.GetError(), nil))
+		}, false) {
+			w.Write(lib.MakeReturnJson(501, valid.GetError(), nil))
 			return
 		}
 
@@ -127,6 +129,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 		}
 		err := sql.AddUser(registerInfo.User, registerInfo.Pass, registerInfo.Nick)
 		if err != nil {
+			fmt.Printf("%v", err)
 			w.Write(lib.MakeReturnJson(503, "注册失败", nil))
 			return
 		}
@@ -135,18 +138,18 @@ func register(w http.ResponseWriter, r *http.Request) {
 }
 
 // 修改昵称
-func reviseName(w http.ResponseWriter, r *http.Request) {
+func ReviseName(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var (
 			nick  string
-			vali  validate.Validate
+			valid validate.Validate
 			token string
 		)
 		nick = r.PostFormValue("nick")
 		w.Header().Add("content-type", "application/json;charset=utf-8")
 
-		vali = validate.Validate{}
-		if !vali.Init().SetRule(map[string]string{
+		valid = validate.Validate{}
+		if !valid.Init().SetRule(map[string]string{
 			"nick": "require|chsAlphaNum|length:3,15",
 		}).SetMsg(map[string]string{
 			"nick.require":     "昵称必须填写",
@@ -154,8 +157,8 @@ func reviseName(w http.ResponseWriter, r *http.Request) {
 			"nick.length":      "昵称长度为1~5个汉字(15个字符)",
 		}).Check(map[string]interface{}{
 			"nick": nick,
-		}) {
-			w.Write(lib.MakeReturnJson(501, vali.GetError(), nil))
+		}, false) {
+			w.Write(lib.MakeReturnJson(501, valid.GetError(), nil))
 			return
 		}
 
@@ -181,11 +184,11 @@ func reviseName(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// 修改目前登录信息中缓存的值
-		v, ok := service.SocketList.Load(user.ID)
+		v, ok := SocketList.Load(user.ID)
 		if ok {
-			client := v.(service.Client)
+			client := v.(Client)
 			client.Name = nick
-			service.SocketList.Store(user.ID, client)
+			SocketList.Store(user.ID, client)
 		}
 		w.Write(lib.MakeReturnJson(200, "昵称修改成功", nil))
 		return
@@ -193,7 +196,7 @@ func reviseName(w http.ResponseWriter, r *http.Request) {
 }
 
 // 修改字体颜色
-func reviseFontColor(w http.ResponseWriter, r *http.Request) {
+func ReviseFontColor(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		color := r.PostFormValue("fontColor")
 		w.Header().Add("content-type", "application/json;charset=utf-8")
@@ -224,11 +227,11 @@ func reviseFontColor(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// 修改目前登录信息中缓存的值
-		v, ok := service.SocketList.Load(user.ID)
+		v, ok := SocketList.Load(user.ID)
 		if ok {
-			client := v.(service.Client)
+			client := v.(Client)
 			client.FontColor = color
-			service.SocketList.Store(user.ID, client)
+			SocketList.Store(user.ID, client)
 		}
 		w.Write(lib.MakeReturnJson(200, "字体颜色修改成功", nil))
 		return

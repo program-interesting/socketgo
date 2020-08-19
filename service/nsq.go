@@ -4,7 +4,6 @@ import (
 	"github.com/nsqio/go-nsq"
 	"io/ioutil"
 	"log"
-	"socketgo/service"
 	"time"
 )
 
@@ -14,7 +13,7 @@ var producer *nsq.Producer
 type ConsumerT struct{}
 
 func (*ConsumerT) HandleMessage(msg *nsq.Message) error {
-	service.HandleMessage(msg)
+	HandleMessage(msg)
 	return nil
 }
 

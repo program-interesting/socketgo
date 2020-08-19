@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/websocket"
 	"html/template"
 	"net/http"
-	"socketgo/service"
 	"socketgo/sql"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ import (
 )
 
 // WebSocket处理事件
-func wsHandler(w http.ResponseWriter, r *http.Request) {
+func WsHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		token []string
 		ok    bool
@@ -37,18 +36,18 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 创建Websocket长连接
-	client := service.NewSocketClient(token[0], w, r)
+	client := NewSocketClient(token[0], w, r)
 	sendOnline := false
 
 	// 判断此用户是否已登录
-	v, ok = service.SocketList.Load(user.ID)
+	v, ok = SocketList.Load(user.ID)
 	if ok { // 已登录，通知下线信息
-		_ = v.(service.Client).Conn.WriteJSON(&service.Message{
+		_ = v.(Client).Conn.WriteJSON(&Message{
 			ID: -1,
 		})
-		_ = v.(service.Client).Conn.WriteMessage(websocket.CloseMessage, []byte{})
-		_ = v.(service.Client).Conn.Close()
-		if time.Now().Unix()-v.(service.Client).UpTime > 600 {
+		_ = v.(Client).Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		_ = v.(Client).Conn.Close()
+		if time.Now().Unix()-v.(Client).UpTime > 600 {
 			sendOnline = true
 		} else {
 			sendOnline = false
@@ -67,7 +66,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	client.Id = user.ID
 	client.Name = user.Nick
 
-	service.SocketList.Store(user.ID, *client) // 将连接信息加入列表中
+	SocketList.Store(user.ID, *client) // 将连接信息加入列表中
 	fmt.Printf("有新用户加入 Nick：%v,User:%v\n", client.Name, user.User)
 	if sendOnline {
 		SendAddMessage(user.Nick, user.Vip)
@@ -77,12 +76,12 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer client.Conn.Close()
 	for {
-		var m service.Message
+		var m Message
 
 		messageType, byteMsg, connErr := client.Conn.ReadMessage()
 		if connErr != nil {
 			_ = client.Conn.Close()
-			service.SocketList.Delete(client.Id)
+			SocketList.Delete(client.Id)
 			fmt.Println("用户主动断开了连接")
 			return
 		}
@@ -102,10 +101,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("读取数据错误", err, string(byteMsg))
 			continue
 		}
-		v, ok = service.SocketList.Load(user.ID)
+		v, ok = SocketList.Load(user.ID)
 		if ok {
-			m.Nick = v.(service.Client).Name
-			m.FontColor = v.(service.Client).FontColor
+			m.Nick = v.(Client).Name
+			m.FontColor = v.(Client).FontColor
 		} else {
 			m.Nick = client.Name
 			m.FontColor = client.FontColor
@@ -126,7 +125,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 // 发送上线消息
 func SendAddMessage(nick string, vip int) {
-	addMsg, err := json.Marshal(&service.Message{
+	addMsg, err := json.Marshal(&Message{
 		ID:      -2,
 		Nick:    nick,
 		Message: strconv.Itoa(vip),
