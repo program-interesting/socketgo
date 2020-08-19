@@ -21,7 +21,7 @@ CREATE TABLE `chat_user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_nick` varchar(255) NOT NULL DEFAULT '' COMMENT '用户昵称',
   `user_user` varchar(20) NOT NULL DEFAULT '' COMMENT '用户账号',
-  `user_pass` char(64) NOT NULL DEFAULT '' COMMENT '用户密码',
+  `user_pass` char(128) NOT NULL DEFAULT '' COMMENT '用户密码',
   `user_salt` char(8) NOT NULL DEFAULT '' COMMENT '加密盐值',
   `user_token` char(32) NOT NULL DEFAULT '' COMMENT 'Token凭证',
   `user_vip` int(1) NOT NULL DEFAULT '0' COMMENT '会员等级',
